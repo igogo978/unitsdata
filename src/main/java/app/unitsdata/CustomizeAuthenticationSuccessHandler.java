@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 /**
- *
  * @author igogo
  */
 @Component
@@ -29,13 +29,20 @@ public class CustomizeAuthenticationSuccessHandler implements AuthenticationSucc
     public void onAuthenticationSuccess(HttpServletRequest hsr, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_OK);
 
+        boolean isAdmin = Boolean.FALSE;
+
         for (GrantedAuthority auth : authentication.getAuthorities()) {
+            logger.info("role admin");
             if ("ROLE_ADMIN".equals(auth.getAuthority())) {
-                response.sendRedirect("/unitsdata/admin");
+                isAdmin = Boolean.TRUE;
             }
         }
 
-        response.sendRedirect("/unitsdata/home");
+        if (isAdmin) {
+            response.sendRedirect("/admin/home");
+        } else {
+            response.sendRedirect("/home");
+        }
     }
 
 }

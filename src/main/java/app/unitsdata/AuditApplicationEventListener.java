@@ -24,6 +24,7 @@ public class AuditApplicationEventListener {
     public void onAuditEvent(AuditApplicationEvent event) {
         AuditEvent actualAuditEvent = event.getAuditEvent();
 
+
         logger.info("On audit application event: timestamp: {}, principal: {}, type: {}, data: {}",
                 actualAuditEvent.getTimestamp(),
                 actualAuditEvent.getPrincipal(),

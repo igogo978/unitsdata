@@ -59,9 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        logger.info("username:" + username);
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+
 
         auth
                 .jdbcAuthentication()

@@ -154,8 +154,7 @@
         <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
-            <type>jar</type>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
 

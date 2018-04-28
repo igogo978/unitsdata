@@ -1,6 +1,8 @@
 package app.unitsdata.wellknown;
 
+import app.unitsdata.model.Applyform;
 import app.unitsdata.model.School;
+import app.unitsdata.repository.ApplyformRepository;
 import app.unitsdata.repository.SchoolRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,6 +52,9 @@ public class ApplyFormController {
     @Autowired
     SchoolRepository repository;
 
+    @Autowired
+    ApplyformRepository applyformrepository;
+
     @RequestMapping(value = "/form", method = RequestMethod.POST)
     public Boolean readItems(@RequestBody Optional<String> payload, HttpServletResponse response) throws JsonProcessingException, IOException {
         if (!payload.isPresent()) {
@@ -85,6 +90,7 @@ public class ApplyFormController {
         Optional<String> allowedip = Optional.of(node.get("allowedip").asText());
         Optional<String> contact = Optional.of(node.get("contact").asText());
         Optional<String> oid = Optional.of(node.get("oid").asText());
+        Optional<String> email = Optional.of(node.get("email").asText());
 
         //timestamp
         Instant instant = Instant.now();
@@ -93,6 +99,21 @@ public class ApplyFormController {
         String applyTime = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(now);
 
         //step.1 寫入資料庫
+        logger.info("write db: applyform");
+
+        Applyform applyform = new Applyform();
+        applyform.setUnit(schoolname.get());
+        applyform.setOid(oid.get());
+        applyform.setAddress(address.get());
+        applyform.setAllowedip(allowedip.get());
+        applyform.setContact(contact.get());
+        applyform.setEduid(eduid.get());
+        applyform.setPhone(tel.get());
+        applyform.setEmail(email.get());
+        applyform.setTimestamp(timestamp);
+
+        applyformrepository.update(applyform);
+
         //step.2 產生pdf 檔
         logger.info("create pdf");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

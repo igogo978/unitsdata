@@ -32,14 +32,14 @@
                     <li><a class="glyphicon glyphicon-list-alt" href="./public/applyform">填寫申請單</a></li>
                 </ul>
                 <!--    <form class="navbar-form navbar-right">
-                            <div class="form-group">
-                                <input type="text" placeholder="Email" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <input type="password" placeholder="Password" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-success">Sign in</button>
-                        </form> -->
+                        <div class="form-group">
+                            <input type="text" placeholder="Email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" placeholder="Password" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-success">Sign in</button>
+                    </form> -->
             </div>
             <!--/.navbar-collapse -->
         </div>
@@ -50,10 +50,10 @@
             </component>
             <modal v-if="showModal" @close="showModal = false">
                 <!--
-              you can use custom content here to overwrite
-              default content
-                    -->
-                <h3 slot="header"> </h3>
+          you can use custom content here to overwrite
+          default content
+                -->
+                <h3 slot="header"></h3>
                 <p slot="body">{{item.err}} </p>
             </modal>
         </div>
@@ -62,8 +62,8 @@
         <div class="input-group">
             <div class="jumbotron" style="background:transparent !important">
                 <div class="container">
-                    <br />
-                    <br />
+                    <br/>
+                    <br/>
                     <div th:if="${param.error}">
                         帳號或密碼錯誤
                     </div>
@@ -87,31 +87,8 @@
                             <label for="exampleInputPassword1">密碼:</label>
                             <input class="form-control" required="required" type="password" name="password" />
                         </div>
-             
                         <button type="submit" class="btn btn-primary">登入</button>
                     </form>
-                <!-- <form th:action="@{/login}" method="post" class="form-horizontal">
-    <div>
-        <label>
-            申請單位:
-            <button type="button" class="btn btn-info" @click="popupWindow">選擇</button>
-            <input v-model="item.schoolname" class="form-control" type="text" disabled="disabled" />
-        </label>
-    </div>
-    <div>
-        <label> 帳號: {{updateUsername}}
-            <input v-model="schoolid" class="form-control" required="required" type="text" name="schoolid" /> </label>
-        <input v-model="username" type="hidden" class="form-control" value="" name="username" /> </label>
-    </div>
-    <div>
-        <label> 密碼:
-            <input class="form-control" required="required" type="password" name="password" />
-        </label>
-    </div>
-    <div>
-        <input type="submit" value="登入" />
-    </div>
-</form> -->
                 </div>
             </div>
         </div>
@@ -171,6 +148,7 @@
         computed: {
             updateUsername: function() {
                 if (this.schoolid.length != 0) {
+                    <!--this.username = "191315";-->
                     this.username = this.item.oid + '-' + this.schoolid;
                 }
             }
