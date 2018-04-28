@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>選擇單位代碼</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--     <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <div class="form-group">
+            <label for="usr">請輸入關鍵字（至少兩字):</label>
+            <input type="text" class="form-control" v-model="keywords" v-on:keyup.enter="findByKeywords" />
+        </div>
+        <!--  縣市：
+<select v-model="selectedArea">
+    <option v-for="option in areaOptions" v-bind:value="option.value">
+        {{ option.text }}
+    </option>
+</select> -->
+        <div class="form-group">
+            <button type="submit" class="btn btn-success" @click="findByKeywords">搜尋</button>
+            <button v-if="noUnit" type="submit" class="btn btn-danger pull-right" @click="addNoCode">找不到服務單位</button>
+        </div>
+        <span v-if="noUnit" class=".bg-warning" style="font-family:Microsoft JhengHei;"> 
+        <h3> 找不到單位代碼,怎麼辦？ </h3>
+        <br />
+        親愛的使用者,如果您找不到服務單位,
+        聯絡客服人員確認您的服務單位
+        </span>
+        <table class="table" v-else>
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>縣市</td>
+                    <td>學校</td>
+                    <td>
+                        地址
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in items">
+                    <td>
+                        <button type="submit" class="btn btn-success" @click="updateItem(item)">增加</button>
+                    </td>
+                    <td>
+                        {{item.county | reviseArea}}
+                    </td>
+                    <td>{{item.schoolname}}</td>
+                    <td>
+                        {{item.address}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- {{items}} -->
+    </div>
+    <footer>
+        <script th:inline="javascript">
+        console.log('line 59');
+
+        Vue.prototype.$http = axios;
+        var app = new Vue({
+            el: '#app',
+            data: {
+                msg: '',
+                keywords: '',
+                items: {},
+                noUnit: false,
+                // selectedArea: '',
+                // areaOptions: [
+                //     { text: '臺北市', value: '臺北市' },
+                //     { text: '新北市', value: '新北市' },
+                //     { text: '桃園市', value: '桃園市' },
+                //     { text: '臺中市', value: '臺中市' },
+                //     { text: '臺南市', value: '臺南市' },
+                //     { text: '高雄市', value: '高雄市' },
+                //     { text: '宜蘭縣', value: '宜蘭縣' },
+                //     { text: '新竹縣', value: '新竹縣' },
+                //     { text: '苗栗縣', value: '苗栗縣' },
+                //     { text: '彰化縣', value: '彰化縣' },
+                //     { text: '南投縣', value: '南投縣' },
+                //     { text: '雲林縣', value: '雲林縣' },
+                //     { text: '嘉義縣', value: '嘉義縣' },
+                //     { text: '屏東縣', value: '屏東縣' },
+                //     { text: '臺東縣', value: '臺東縣' },
+                //     { text: '花蓮縣', value: '花蓮縣' },
+                //     { text: '澎湖縣', value: '澎湖縣' },
+                //     { text: '基隆市', value: '基隆市' },
+                //     { text: '新竹市', value: '新竹市' },
+                //     { text: '嘉義市', value: '嘉義市' },
+                //     { text: '臺南市', value: '臺南市' },
+                //     { text: '金門縣', value: '金門縣' },
+                //     { text: '連江縣', value: '連江縣' },
+                // ]
+            },
+            created: function() {
+                console.log(' created');
+                console.log(this.msg);
+                // console.log(this.items);
+            },
+            filters: {
+                reviseArea: function(str) {
+                    if (!str) return '';
+
+                    return str.replace(/\[\d+\]/, '');
+                }
+            },
+            methods: {
+                findByKeywords: function() {
+
+                    if (this.keywords.length >= 2) {
+                        let vm = this;
+                        this.$http.get('school/' + this.keywords, {
+                                params: {
+                                    stage: '',
+                                    county: ''
+                                }
+                            })
+                            .then(function(response) {
+                                console.log("return school names:" + response.data);
+                                if (response.data.length === 0) {
+                                    console.log('no code');
+                                    vm.noUnit = true;
+
+                                } else {
+                                    vm.items = response.data;
+                                    vm.noUnit = false;
+
+                                }
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+
+                    }
+
+                },
+                addNoCode: function() {
+                    let item = {};
+                    item.eduid = 'nocode';
+                    item.county = '';
+                    item.schoolname = '';
+                    item.address = '';
+                    window.opener.app.updateItem(item);
+                    // console.log('add no code');
+                    // alert('已新增一筆沒有服務單位代碼的資料,請聯絡客服人員確認您的服務單位');
+                },
+                updateItem: function(item) {
+                    item.schoolname = item.county + item.schoolname;
+                    item.schoolname = item.schoolname.replace(/\[\d+\]/, '');
+                    console.log(item)
+                    window.opener.app.updateItem(item);
+
+                }
+            }
+        });
+        </script>
+    </footer>
+</body>
+
+</html>

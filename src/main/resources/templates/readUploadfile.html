@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>觀看上傳資料</title>
+    <!-- Bootstrap core CSS -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/unitsdata/js/vue.js"></script>
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="/unitsdata/js/axios.min.js"></script>
+    <script src="/unitsdata/js/FileSaver.min.js" /></script>
+    <style type="text/css">
+    .modal-mask {
+        position: fixed;
+        z-index: 9998;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .5);
+        display: table;
+        transition: opacity .3s ease;
+    }
+
+    .modal-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .modal-container {
+        width: 300px;
+        margin: 0px auto;
+        padding: 20px 30px;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+        transition: all .3s ease;
+        font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .modal-header h3 {
+        margin-top: 0;
+        color: #42b983;
+    }
+
+    .modal-body {
+        margin: 20px 0;
+    }
+
+    .modal-default-button {
+        float: right;
+        border: 4px solid #26759E;
+        -webkit-box-shadow: #878787 0px 2px 2px;
+        -moz-box-shadow: #878787 0px 2px 2px;
+        box-shadow: #878787 0px 2px 2px;
+        -webkit-border-radius: 23px;
+        -moz-border-radius: 23px;
+        border-radius: 23px;
+        font-size: 13px;
+        font-family: arial, helvetica, sans-serif;
+        padding: 10px 20px 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        color: #FFFFFF;
+        background-color: #3093C7;
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#3093C7), to(#1C5A85));
+        background-image: -webkit-linear-gradient(top, #3093C7, #1C5A85);
+        background-image: -moz-linear-gradient(top, #3093C7, #1C5A85);
+        background-image: -ms-linear-gradient(top, #3093C7, #1C5A85);
+        background-image: -o-linear-gradient(top, #3093C7, #1C5A85);
+        background-image: linear-gradient(to bottom, #3093C7, #1C5A85);
+        filter: progid: DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#3093C7, endColorstr=#1C5A85);
+    }
+    /*
+                 * The following styles are auto-applied to elements with
+                 * transition="modal" when their visibility is toggled
+                 * by Vue.js.
+                 *
+                 * You can easily play with the modal transition by editing
+                 * these styles.
+                 */
+
+    .modal-enter {
+        opacity: 0;
+    }
+
+    .modal-leave-active {
+        opacity: 0;
+    }
+
+    .modal-enter .modal-container,
+    .modal-leave-active .modal-container {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Static navbar -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!--       <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    
+
+                </div> -->
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li> <a class="glyphicon glyphicon-list-alt" href="/unitsdata">Home</a></li>
+                        <li> <a class="glyphicon glyphicon-th" href="/">管理者相關</a></li>
+                        <li><a class="glyphicon glyphicon-upload" href="/unitsdata/home/upload">上傳資料</a></li>
+                        <li><a class="glyphicon glyphicon-list-alt" href="/unitsdata/home/view">觀看資料</a></li>
+                        <!--  <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li class="dropdown-header">Nav header</li>
+                                <li><a href="#">Separated link</a></li>
+                                <li><a href="#">One more separated link</a></li>
+                            </ul>
+                        </li> -->
+                    </ul>
+                    <!--          <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li>
+                        <li><a href="../navbar-static-top/">Static top</a></li>
+                        <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+                    </ul> -->
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!--/.container-fluid -->
+        </nav>
+        <!-- Main component for a primary marketing message or call to action -->
+        <!-- template for the modal component -->
+        <script type="text/x-template" id="modal-template">
+            <transition name="modal">
+                <div class="modal-mask">
+                    <div class="modal-wrapper">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <slot name="header">
+                                    default header
+                                </slot>
+                            </div>
+                            <div class="modal-body">
+                                <slot name="body">
+                                    default body
+                                </slot>
+                            </div>
+                            <div class="modal-footer">
+                                <slot name="footer">
+                                    <button class="modal-default-button" @click="$emit('close')">
+                                        OK
+                                    </button>
+                                </slot>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </script>
+        <div class="jumbotron" id="app">
+            <!-- {{ filenaem }} -->
+            <div class="row">
+                <div class="col-12">
+                    <!-- //分頁處理 -->
+                    <button class="btn btn-primary" v-bind:disabled="pagination.current===0" v-on:click="pagination.current -= 1">上一頁</button>
+                    {{pagination.current+1}}/{{pagination.total}} {{initView}} {{updateViewItems}}
+                    <button class="btn btn-primary" v-bind:disabled="pagination.current+1===pagination.total" v-on:click="pagination.current += 1">下一頁</button>
+                    <button class="btn btn-primary" id="invalidItemsView" @click="switchView">{{currentViewMsg}}</button>
+                    <input v-if="currentView==='validItemsView'" v-on:click="writeDB" type="button" class="btn btn-warning pull-right" value="寫入資料庫">
+                    <input v-else v-on:click="saveItems" type="button" class="btn btn-warning pull-right" value="下載檔案">
+                    <modal v-if="showModal" @close="showModal = false">
+                        <h3 slot="header">異動結果</h3>
+                        <p v-if="failItems != 0" slot="body" :successItems="successItems" :failItems="failItems"> 共{{successItems}}筆異動成功,{{failItems}}筆需再做修正
+                        </p>
+                        <p v-else slot="body"> 共{{successItems}}筆異動成功 </p>
+                    </modal>
+                </div>
+            </div>
+            <!-- {{ filenaem }} -->
+            <!--                <div th:if="${msg}">
+                                    <h2 th:text="${msg}" />
+                                </div>-->
+            <!-- <p th:text="'filename: ' + ${filename}"> -->
+            </p>
+            <!-- {{items}} -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>全名</th>
+                        <th>身份証字號</th>
+                        <th>學校代碼</th>
+                        <th>學期</th>
+                        <th>班級名稱</th>
+                        <th>年級</th>
+                        <th>班級</th>
+                        <th>單位職稱別1</th>
+                        <th>單位職稱別2</th>
+                        <th>單位職稱別3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in viewItems">
+                        <td>{{item.fullName}}</td>
+                        <td>{{item.personGuid}}</td>
+                        <td>{{item.schoolID}}</td>
+                        <td>{{item.semester}}</td>
+                        <td>{{item.classtitle}}</td>
+                        <td>{{item.grade}}</td>
+                        <td>{{item.classno}}</td>
+                        <td>{{item.title1}}</td>
+                        <td>{{item.title2}}</td>
+                        <td>{{item.title3}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- /container -->
+    <script th:inline="javascript">
+    Vue.prototype.$http = axios;
+    var config = {
+        headers: {
+            'content-type': 'application/json;CHARSET=UTF-8'
+        }
+    };
+
+    // register modal component
+    Vue.component('modal', {
+        template: '#modal-template'
+    })
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            filename: /*[[${filename}]]*/ 'file Name',
+            showModal: false,
+            successItems: 0,
+            failItems: 0,
+            pagination: {
+                current: 0,
+                pageRows: 30,
+                total: 1
+            },
+            counter: 0,
+            items: [],
+            viewItems: [],
+            validItems: [],
+            invalidItems: [],
+            currentView: "validItemsView",
+            currentViewMsg: "觀看不合格式資料",
+        },
+        created: function() {
+            // console.log('url:' + "file/" + this.filename);
+
+
+            let url = "file/" + this.filename;
+            // `this` points to the vm instance
+            let vm = this;
+            this.$http.get(url, config)
+                .then((response) => {
+                    // success callback
+                    vm.items = response.data;
+                    // console.log(response.data);
+                    console.log("讀出檔案筆數：" + vm.items.length)
+
+                    // for (let i = 0; i < vm.pagination.pageItems; i++) {
+                    //     // console.log("iterator items:" + vm.items[i].fullName);
+                    //     vm.filterItems.push(vm.items[i]);
+                    // }
+                    // //決定總頁數
+                    // vm.pagination.total = Math.ceil(vm.items.length / vm.pagination.pageItems);
+
+                    // console.log("總頁數：" + vm.pagination.total);
+
+                }, (response) => {
+                    // error callback
+                });
+        },
+
+        methods: {
+            switchView: function() {
+
+                console.log("currentView:" + this.currentView);
+                this.currentView === "validItemsView" ? this.currentView = "invalidItemsView" : this.currentView = "validItemsView"
+                this.currentView === "validItemsView" ? this.currentViewMsg = "觀看不合格式資料" : this.currentViewMsg = "觀看符合格式資料"
+                this.pagination.current = 0;
+            },
+            writeDB: function() {
+                // console.log("要寫入的資料：" + this.items.length);
+                //檢查欄位是否為null, null 改送空字串""
+
+                this.items.forEach(function(item) {
+                    // console.log(item.fullName);
+                    // console.log(Object.keys(item));
+                    let keys = Object.keys(item);
+                    keys.forEach(function(element) {
+                        // console.log("item:" + item[element]);
+                        // console.log("element:" + element);
+                        if (!item[element]) {
+                            item[element] = '';
+                        }
+
+                    })
+
+                    // console.log(item);
+
+                });
+
+                let vm = this;
+                let url = "/unitsdata/home/items/update/";
+                this.$http.put(url,
+                    JSON.stringify(this.items), config
+                ).then((response) => {
+                    // success callback
+                    // console.log(response.data);
+                    // vm.$emit('get-data', response.data);
+                    console.log(response.data)
+                    vm.successItems = response.data.success;
+                    // vm.failItems = 3;
+
+
+                }, (response) => {
+                    // error callback
+                });
+                this.showModal = true;
+            },
+            saveItems: function() {
+                let config = {
+                    headers: {
+                        'content-type': 'application/json;CHARSET=UTF-8'
+                    },
+                    responseType: 'arraybuffer'
+                };
+                console.log('download items');
+                let url = "/unitsdata/home/items/download/";
+                // var FileSaver = require('file-saver');
+                let vm = this;
+                this.$http.post(url, JSON.stringify(this.invalidItems), config)
+                    .then((response) => {
+                        var blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        saveAs(blob, "需再修正資料" + '.xlsx');
+                    });
+            },
+            checkFormat: function(item) {
+                let status = true;
+                // item.fullName.length != 0 ? true : status = false;
+                // item.personGuid.length === 10 ? true : status = false;
+                // item.schoolID.length != 6 ? true : status = false;
+                item.title1.length != 0 ? true : status = false;
+
+                // if (!status) {
+                //     console.log(item.fullName);
+                // }
+                // console.log('status:' + status);
+                return Boolean(status);
+
+            },
+            doViewItems: function(current, pageItemsSize, totalItems) {
+                let viewItems = []
+                if (totalItems.length < pageItemsSize) {
+                    viewItems = totalItems;
+                } else {
+                    let end = (current + 1) * pageItemsSize <= totalItems.length ? (current + 1) * pageItemsSize : totalItems.length;
+                    console.log("end:" + end)
+                    for (let i = current; i < end; i++) {
+                        viewItems.push(totalItems[i]);
+                    }
+                }
+                return viewItems;
+            }
+        },
+        computed: {
+            initView: function() {
+                if (this.items.length != 0) {
+                    //欄位可能是null 一律當空字串處理
+                    this.items.forEach(function(item) {
+                        // console.log(item.fullName);
+                        // console.log(Object.keys(item));
+                        let keys = Object.keys(item);
+                        keys.forEach(function(element) {
+                            // console.log("item:" + item[element]);
+                            // console.log("element:" + element);
+                            if (!item[element]) {
+                                item[element] = '';
+                            }
+
+                        })
+                        // console.log(item);
+                    });
+
+                    //區分合格與不合格資料
+                    this.invalidItems = [];
+                    this.validItems = [];
+                    for (let i = 0; i < this.items.length; i++) {
+                        // console.log(vm.items[i].fullName);
+                        // status = Boolean(this.checkFormat(this.items[i]));
+                        // console.log('return value:' + this.checkFormat(this.items[i]));
+                        if (this.checkFormat(this.items[i])) {
+                            // console.log('true')
+                            this.validItems.push(this.items[i])
+                        } else {
+                            this.invalidItems.push(this.items[i]);
+                            // console.log('false')
+
+                        }
+
+                    }
+                    console.log("invalid:" + this.invalidItems.length);
+                    console.log("valid:" + this.validItems.length);
+
+
+                }
+
+            },
+            updateViewItems: function() {
+
+                if (this.validItems.length != 0 || this.invalidItems.length != 0) {
+
+
+                    //決定呈現的資料
+                    this.viewItems = [];
+                    if (this.currentView === "validItemsView") {
+
+                        //決定總頁數
+                        this.pagination.total = Math.ceil(this.validItems.length / this.pagination.pageRows);
+                        console.log('總頁數：' + this.pagination.total)
+                        // doViewItems: function(currentPage, pageItemsSize, totalItems)
+                        console.log("current page:" + this.pagination.current);
+                        this.viewItems = this.doViewItems(this.pagination.current, this.pagination.pageRows, this.validItems);
+
+                        // if (this.validItems.length < 31) {
+                        //     this.viewItems = this.validItems;
+                        // } else {
+                        //     let end = (this.pagination.current + 1) * this.pagination.pageRows <= this.validItems.length ? (this.pagination.current + 1) * this.pagination.pageRows : this.validItems.length;
+                        //     console.log("end:" + end)
+                        //     for (let i = this.pagination.current; i < end; i++) {
+                        //         this.viewItems.push(this.validItems[i]);
+                        //     }
+
+                        // }
+
+                    } else {
+                        //不合格式頁面
+                        //決定總頁數
+                        this.pagination.total = Math.ceil(this.invalidItems.length / this.pagination.pageRows);
+                        console.log('總筆數:' + this.invalidItems.length);
+                        console.log('總頁數：' + this.pagination.total);
+                        // doViewItems: function(currentPage, pageItemsSize, totalItems)
+                        console.log("current page:" + this.pagination.current);
+                        this.viewItems = this.doViewItems(this.pagination.current, this.pagination.pageRows, this.invalidItems);
+
+                    }
+
+
+
+
+                }
+
+
+
+            }
+        },
+
+    })
+    </script>
+</body>
+
+</html>

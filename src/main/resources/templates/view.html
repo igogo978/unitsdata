@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>VIEW</title>
+    <!-- Bootstrap core CSS -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/unitsdata/js/vue.js"></script>
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="/unitsdata/js/axios.min.js"></script>
+    <script src="/unitsdata/js/FileSaver.min.js" /></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Static navbar -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!--       <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    
+
+                </div> -->
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li> <a class="glyphicon glyphicon-list-alt" href="/unitsdata">Home</a></li>
+                        <li> <a class="glyphicon glyphicon-th" href="/">管理者相關</a></li>
+                        <li><a class="glyphicon glyphicon-upload" href="/unitsdata/home/upload">上傳資料</a></li>
+                        <li><a class="glyphicon glyphicon-list-alt" href="/unitsdata/home/view">觀看資料</a></li>
+                        <!--  <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li class="dropdown-header">Nav header</li>
+                                <li><a href="#">Separated link</a></li>
+                                <li><a href="#">One more separated link</a></li>
+                            </ul>
+                        </li> -->
+                    </ul>
+                    <!--          <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li>
+                        <li><a href="../navbar-static-top/">Static top</a></li>
+                        <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+                    </ul> -->
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!--/.container-fluid -->
+        </nav>
+        <!-- Main component for a primary marketing message or call to action -->
+        <div class="jumbotron" id="app">
+            <!--                <div th:if="${msg}">
+                                    <h2 th:text="${msg}" />
+                                </div>-->
+            <h3>view items</h3> {{checkedItems.length}}
+            <button class="btn btn-primary" v-bind:disabled="pagination.current===0" v-on:click="pagination.current -= 1">上一頁</button>
+            {{pagination.current+1}}/{{pagination.total}} {{updateViewItems}}
+            <button class="btn btn-primary" v-bind:disabled="pagination.current+1===pagination.total" v-on:click="pagination.current += 1">下一頁</button>
+            <span v-if="checkedItems.length != 0">
+                <button @click="deleteItems" type="button" class="btn btn-danger pull-right">刪除勾選資料</button>
+            </span>
+            <span v-else>
+                <button @click="getAllItems" type="button" class="btn btn-info pull-right">下載所有資料</button>
+            </span>
+            <!-- <span th:text="'Message: ' + ${username}"></span> -->
+            <div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" v-model="checked" @change="checkAll()">全選{{checked}}</th>
+                            </th>
+                            <th>全名</th>
+                            <th>身份証字號</th>
+                            <th>學校代碼</th>
+                            <th>學期</th>
+                            <th>班級名稱</th>
+                            <th>年級</th>
+                            <th>班級</th>
+                            <th>單位職稱別1</th>
+                            <th>單位職稱別2</th>
+                            <th>單位職稱別3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in viewItems">
+                            <td>
+                                <input type="checkbox" :id="item.personGuid" :value="item.personGuid" v-model="checkedItems">
+                            </td>
+                            <td>{{item.fullName}}</td>
+                            <td>{{item.personGuid}}</td>
+                            <td>{{item.schoolID}}</td>
+                            <td>{{item.semester}}</td>
+                            <td>{{item.classtitle}}</td>
+                            <td>{{item.grade}}</td>
+                            <td>{{item.classno}}</td>
+                            <td>{{item.title1}}</td>
+                            <td>{{item.title2}}</td>
+                            <td>{{item.title3}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {{checkedItems}}
+            </div>
+        </div>
+    </div>
+    <!-- /container -->
+    <footer>
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+        Vue.prototype.$http = axios;
+        let config = {
+            headers: {
+                'content-type': 'application/json;CHARSET=UTF-8'
+            }
+        };
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                items: [],
+                totalItemsCounts: 0,
+                pagination: {
+                    current: 0,
+                    pageRows: 30,
+                    total: 1
+                },
+                checkedItems: [],
+                viewItems: [],
+                checked: false,
+                username: /*[[${username}]]*/
+            },
+            methods: {
+                findByLimit: function() {
+
+                    console.log('findByLimit:' + this.pagination.current);
+                    let vm = this;
+                    let url = "/unitsdata/home/items/read/";
+                    console.log('total counts:' + this.totalItemsCounts);
+                    console.log('current page:' + this.pagination.current);
+
+                    if ((this.pagination.current - 1) * this.pagination.pageRows + this.pagination.pageRows >= this.totalItemsCounts && this.pagination.current != 0) {
+                        this.pagination.current = this.pagination.current - 1;
+
+                    }
+
+
+                    requestItems = {
+                        start: this.pagination.current * this.pagination.pageRows,
+                        rows: this.pagination.pageRows
+                    }
+                    this.$http.post(url, JSON.stringify(requestItems), config).then((response) => {
+                        // success callback
+                        // console.log(response.data);
+                        console.log(response.data)
+                        vm.viewItems = response.data;
+
+                    }, (response) => {
+                        // error callback
+                    });
+
+                },
+
+                downloadService: function(items) {
+                    console.log(items);
+                    let config = {
+                        headers: {
+                            'content-type': 'application/json;CHARSET=UTF-8'
+                        },
+                        responseType: 'arraybuffer'
+                    };
+                    let url = "/unitsdata/home/items/download/";
+
+                    let vm = this;
+                    this.$http.post(url, JSON.stringify(this.items), config)
+                        .then((response) => {
+                            var blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                            saveAs(blob, vm.username + '.xlsx');
+                        });
+
+
+                },
+                getAllItems: function() {
+
+                    console.log('download all data');
+                    //先從read取回所有items 再送到download
+                    let url = "/unitsdata/home/items/read/";
+                    let requestItems = {
+                        start: 0,
+                        rows: 0
+                    }
+                    let vm = this;
+                    this.$http.post(url, JSON.stringify(requestItems), config).then((response) => {
+                        // success callback
+                        // console.log(response.data);
+                        // console.log(response.data)
+                        vm.items = response.data;
+                        vm.downloadService(vm.items);
+
+
+                    }, (response) => {
+                        // error callback
+                    });
+
+
+
+
+                },
+                checkAll: function() {
+                    console.log(this.checkedItems.length);
+                    console.log(this.viewItems);
+
+                    if (this.checkedItems.length >= this.viewItems.length) {
+                        this.checkedItems = [];
+                        this.checked = false;
+
+                    } else {
+                        for (let i = 0; i < this.viewItems.length; i++) {
+                            // this.checkedItems.push(item.personGuid);
+                            // console.log(this.items[i].personGuid);
+                            this.checkedItems.push(this.viewItems[i].personGuid);
+                            this.checked = true;
+                        }
+
+                    }
+
+                },
+                deleteItems: function() {
+                    console.log("delete checked items")
+                    let url = "/unitsdata/home/items/delete";
+                    let vm = this;
+                    this.$http.delete(url, {
+                        data: JSON.stringify(this.checkedItems)
+                    }, config).then((response) => {
+                        // success callback
+                        console.log(response.data);
+                        if (response.data.success != 0) {
+                            console.log("request current page items")
+                            vm.checkedItems = [];
+                            vm.getTotalCounts();
+                            vm.findByLimit();
+                            vm.checked = false;
+                        }
+
+                    }, (response) => {
+                        // error callback
+                    });
+
+                },
+                getTotalCounts: function() {
+                    let vm = this;
+                    let url = "/unitsdata/home/items/read/";
+
+                    //get itesm counts
+                    this.$http.get(url, config).then((response) => {
+
+                        console.log(response.headers['x-total-count']);
+                        vm.totalItemsCounts = response.headers['x-total-count'];
+                        //決定總頁數
+                        vm.pagination.total = Math.ceil(vm.totalItemsCounts / vm.pagination.pageRows);
+                        vm.pagination.total === 0 ? vm.pagination.total = 1 : vm.pagination.total;
+                        console.log(vm.pagination.total);
+
+                        // vm.items = response.data;
+
+
+                    }, (response) => {
+                        // error callback
+                    });
+
+                },
+            },
+            created: function() {
+
+                // console.log('url:' + "file/" + this.filename);
+                let vm = this;
+                let url = "/unitsdata/home/items/read/";
+
+                //get itesm counts
+                this.$http.get(url, config).then((response) => {
+
+                    console.log(response.headers['x-total-count']);
+                    vm.totalItemsCounts = response.headers['x-total-count'];
+                    //決定總頁數
+                    vm.pagination.total = Math.ceil(vm.totalItemsCounts / vm.pagination.pageRows);
+                    vm.pagination.total === 0 ? vm.pagination.total = 1 : vm.pagination.total;
+                    console.log(vm.pagination.total);
+
+                    // vm.items = response.data;
+
+
+                }, (response) => {
+                    // error callback
+                });
+
+
+            },
+            computed: {
+                updateViewItems: function() {
+                    console.log('update view items:' + this.pagination.current);
+                    this.findByLimit();
+
+                }
+
+            }
+        })
+        /*]]>*/
+        </script>
+    </footer>
+</body>
+
+</html>
